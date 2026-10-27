@@ -1,0 +1,4210 @@
+{
+  "info": {
+    "_postman_id": "c7476523-9214-4cb6-a5ef-e65d3340f212",
+    "name": "EduShop API Testing - Mustafa Barakeh",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "31579329"
+  },
+  "item": [
+    {
+      "name": "Login Customer - Valid Credentials",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Customer login returns session tokens\", function () {\r\n    pm.expect(response).to.have.property(\"accessToken\");\r\n    pm.expect(response).to.have.property(\"refreshToken\");\r\n    pm.expect(response.roles).to.include(\"Customer\");\r\n});\r\n\r\npm.test(\"Response does not expose a password\", function () {\r\n    pm.expect(JSON.stringify(response).toLowerCase()).not.to.include(\"password\");\r\n});\r\n\r\npm.collectionVariables.set(\"customer_access_token\", response.accessToken);\r\npm.collectionVariables.set(\"customer_refresh_token\", response.refreshToken);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Email\": \"{{customer_email}}\",\n  \"Password\": \"{{qa_password_1}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login Customer - Invalid Password",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response returns the generic login error message\", function () {\r\n    pm.expect(response.message).to.eql(\"Invalid email or password.\");\r\n});\r\n\r\npm.test(\"Response includes an error timestamp\", function () {\r\n    pm.expect(response).to.have.property(\"timestamp\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Email\": \"{{customer_email}}\",\n  \"Password\": \"{{qa_password_2}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login Customer - Non-Existent Email",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response returns the generic login error message\", function () {\r\n    pm.expect(response.message).to.eql(\"Invalid email or password.\");\r\n});\r\n\r\npm.test(\"Response includes an error timestamp\", function () {\r\n    pm.expect(response).to.have.property(\"timestamp\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Email\": \"mustafa.api.notfound@example.com\",\n  \"Password\": \"{{qa_password_2}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Admin Dashboard - Customer Access Denied",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer is denied access to the Admin Dashboard with 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/dashboard",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "dashboard"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Revenue Report - Customer Access Denied",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/revenue",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "revenue"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer is denied access to the Revenue Report with 403\", function () {",
+              "    pm.response.to.have.status(403);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login Admin - Valid Credentials",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Admin login returns an Admin role\", function () {\r\n    pm.expect(response.roles).to.include(\"Admin\");\r\n    pm.expect(response).to.have.property(\"accessToken\");\r\n});\r\n\r\npm.test(\"Response does not expose a password\", function () {\r\n    pm.expect(JSON.stringify(response).toLowerCase()).not.to.include(\"password\");\r\n});\r\n\r\npm.collectionVariables.set(\"admin_access_token\", response.accessToken);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Email\": \"admin@test.com\",\n  \"Password\": \"{{qa_password_3}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Revenue Report - Admin Access",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Admin can access the Revenue Report with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response contains the revenue summary fields\", function () {\r\n    pm.expect(response).to.have.property(\"totalRevenue\");\r\n    pm.expect(response).to.have.property(\"monthlyRevenue\");\r\n    pm.expect(response).to.have.property(\"weeklyRevenue\");\r\n});\r\n\r\npm.test(\"Response contains the monthly revenue breakdown\", function () {\r\n    pm.expect(response).to.have.property(\"monthlyBreakdown\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/revenue",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "revenue"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Category Filter - Electronics",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response contains products for the Electronics category\", function () {\r\n    pm.expect(response.totalCount).to.be.above(0);\r\n});\r\n\r\npm.collectionVariables.set(\"electronics_category_count\", response.totalCount);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?Category=Electronics",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "Category",
+              "value": "Electronics"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Category Filter - electronics (Lowercase)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?Category=electronics",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "Category",
+              "value": "electronics"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product Update - Restore Test Data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Product test data is restored with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Product stock is restored to 57\", function () {\r\n    pm.expect(response.stock).to.eql(57);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Mustafa Updated Test Product\",\n  \"Description\": \"Product updated for EduShop manual testing.\",\n  \"Price\": 20,\n  \"Stock\": 57,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 10,\n  \"IsActive\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product/26",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "26"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Other Customer Order - Access Denied",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer cannot access another customer's order\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response returns the expected not found message\", function () {\r\n    pm.expect(response.message).to.eql(\"Order not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/order/7",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order",
+            "7"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Review - Unpurchased Product Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer without a delivered purchase cannot submit a review\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nif (pm.response.code === 200) {\r\n    const response = pm.response.json();\r\n    pm.collectionVariables.set(\"unapproved_review_id\", response.id);\r\n}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ProductId\": 16,\n  \"Rating\": 5,\n  \"Comment\": \"API test: customer has not purchased this product.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/review",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "review"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Review - Cleanup Unapproved Test Review",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Test review is deleted successfully\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response confirms review deletion\", function () {\r\n    pm.expect(response.message).to.eql(\"Review deleted successfully.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/review/{{unapproved_review_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "review",
+            "{{unapproved_review_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Categories - List Active Categories",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response contains active categories\", function () {\r\n    pm.expect(response).to.be.an(\"array\").that.is.not.empty;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/category",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category Update - Duplicate Name Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Duplicate category name is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Electronics\",\n  \"Description\": \"Fashion and apparel for all seasons\",\n  \"ImageUrl\": \"/assets/images/clothing.jpg\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/category/2",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category Update - Restore Test Data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Category test data is restored with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Category name is restored to Clothing\", function () {\r\n    pm.expect(response.name).to.eql(\"Clothing\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Clothing\",\n  \"Description\": \"Fashion and apparel for all seasons\",\n  \"ImageUrl\": \"/assets/images/clothing.jpg\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/category/2",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Current Customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer can retrieve their cart with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/cart",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Add Product Up To Available Stock",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Product is added up to its available stock with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Cart contains 49 items\", function () {\r\n    pm.expect(response.totalItems).to.eql(49);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ProductId\": 2,\n  \"Quantity\": 49\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/cart/items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart",
+            "items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Combined Quantity Exceeds Stock Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Combined cart quantity greater than stock is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ProductId\": 2,\n  \"Quantity\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/cart/items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart",
+            "items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Cleanup Test Data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Cart is cleared successfully with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response confirms the cart was cleared\", function () {\r\n    pm.expect(response.message).to.eql(\"Cart cleared successfully.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/cart",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Current Customer",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/cart",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Review - Rating Above 5 Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Rating above 5 is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ProductId\": 16,\n  \"Rating\": 6,\n  \"Comment\": \"API validation test for an invalid rating.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/review",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "review"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product Update - Customer Access Denied",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer cannot update a product and receives 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Mustafa Updated Test Product\",\n  \"Description\": \"Product updated for EduShop manual testing.\",\n  \"Price\": 20,\n  \"Stock\": 57,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 10,\n  \"IsActive\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product/26",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "26"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Unauthenticated Access Denied",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Unauthenticated access to Cart is denied with 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/cart",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh Token - Valid Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Valid refresh token is exchanged successfully with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response returns a new access token and refresh token\", function () {\r\n    pm.expect(response).to.have.property(\"accessToken\");\r\n    pm.expect(response).to.have.property(\"refreshToken\");\r\n});\r\n\r\npm.collectionVariables.set(\"refreshed_customer_access_token\", response.accessToken);\r\npm.collectionVariables.set(\"refreshed_customer_refresh_token\", response.refreshToken);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccessToken\": \"{{customer_access_token}}\",\n  \"RefreshToken\": \"{{customer_refresh_token}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/refresh",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "refresh"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh Token - Replay Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Used refresh token is rejected with 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response explains that the refresh token is invalid or expired\", function () {\r\n    pm.expect(response.message).to.eql(\"Invalid or expired refresh token.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccessToken\": \"{{customer_access_token}}\",\n  \"RefreshToken\": \"{{customer_refresh_token}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/refresh",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "refresh"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout Customer - Revoke Refresh Tokens",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Logout succeeds with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response confirms successful logout\", function () {\r\n    pm.expect(response.message).to.eql(\"Logged out successfully.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{refreshed_customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/logout",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh Token - After Logout Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Refresh token is rejected after logout with 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response confirms the refresh token is invalid or expired\", function () {\r\n    pm.expect(response.message).to.eql(\"Invalid or expired refresh token.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"AccessToken\": \"{{refreshed_customer_access_token}}\",\n  \"RefreshToken\": \"{{refreshed_customer_refresh_token}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/refresh",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "refresh"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Setup Quantity Update Stock Test",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Product is added to the cart with 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\nconst item = response.items.find(function (cartItem) {\r\n    return cartItem.productId === 2;\r\n});\r\n\r\npm.test(\"Cart item is created for the stock update test\", function () {\r\n    pm.expect(item).to.exist;\r\n});\r\n\r\npm.collectionVariables.set(\"cart_item_id_for_stock_test\", item.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ProductId\": 2,\n  \"Quantity\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/cart/items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart",
+            "items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart Item - Quantity Above Stock Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Cart quantity above product stock is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Quantity\": 50\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/cart/items/{{cart_item_id_for_stock_test}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart",
+            "items",
+            "{{cart_item_id_for_stock_test}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Valid Data",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Registration returns an authenticated Customer session\", function () {\r\n    pm.expect(response).to.have.property(\"accessToken\");\r\n    pm.expect(response).to.have.property(\"refreshToken\");\r\n    pm.expect(response.roles).to.include(\"Customer\");\r\n});\r\n\r\npm.test(\"Response does not expose a password\", function () {\r\n    pm.expect(JSON.stringify(response).toLowerCase()).not.to.include(\"password\");\r\n});\r\n\r\npm.collectionVariables.set(\"registered_customer_access_token\", response.accessToken);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa.api.register11@example.com\",\n  \"Password\": \"{{qa_password_1}}\",\n  \"ConfirmPassword\": \"{{qa_password_1}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Duplicate Email Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Duplicate email returns a clear message\", function () {\r\n    pm.expect(response.message).to.include(\"already exists\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa.api.register11@example.com\",\n  \"Password\": \"{{qa_password_1}}\",\n  \"ConfirmPassword\": \"{{qa_password_1}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Password Confirmation Mismatch Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Password confirmation validation error is returned\", function () {\r\n    pm.expect(response).to.have.property(\"errors\");\r\n    pm.expect(JSON.stringify(response.errors).toLowerCase()).to.include(\"match\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa.api.mismatch11@example.com\",\n  \"Password\": \"{{qa_password_1}}\",\n  \"ConfirmPassword\": \"{{qa_password_4}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Invalid Email Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Email validation error is returned\", function () {\r\n    pm.expect(response).to.have.property(\"errors\");\r\n    pm.expect(JSON.stringify(response.errors).toLowerCase()).to.include(\"email\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa-invalid-email\",\n  \"Password\": \"{{qa_password_1}}\",\n  \"ConfirmPassword\": \"{{qa_password_1}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Password Without Uppercase Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Missing uppercase password rule is reported\", function () {\r\n    pm.expect(response.message.toLowerCase()).to.include(\"uppercase\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa.api.noupper11@example.com\",\n  \"Password\": \"{{qa_password_5}}\",\n  \"ConfirmPassword\": \"{{qa_password_5}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Password Without Lowercase Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Missing lowercase password rule is reported\", function () {\r\n    pm.expect(response.message.toLowerCase()).to.include(\"lowercase\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa.api.nolower11@example.com\",\n  \"Password\": \"{{qa_password_6}}\",\n  \"ConfirmPassword\": \"{{qa_password_6}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Password Without Digit Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Missing digit password rule is reported\", function () {\r\n    pm.expect(response.message.toLowerCase()).to.include(\"digit\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa.api.nodigit11@example.com\",\n  \"Password\": \"{{qa_password_7}}\",\n  \"ConfirmPassword\": \"{{qa_password_7}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Password Without Special Character Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Missing special character password rule is reported\", function () {\r\n    pm.expect(response.message.toLowerCase()).to.include(\"non alphanumeric\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa.api.nospecial11@example.com\",\n  \"Password\": \"{{qa_password_8}}\",\n  \"ConfirmPassword\": \"{{qa_password_8}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Password Shorter Than Six Characters Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst responseText = JSON.stringify(pm.response.json()).toLowerCase();\r\n\r\npm.test(\"Minimum password length rule is reported\", function () {\r\n    pm.expect(responseText).to.match(/length|character|6/);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"mustafa.api.shortpassword11@example.com\",\n  \"Password\": \"{{qa_password_9}}\",\n  \"ConfirmPassword\": \"{{qa_password_9}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Required Fields Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"All required registration fields return validation errors\", function () {\r\n    pm.expect(response).to.have.property(\"errors\");\r\n    pm.expect(response.errors).to.have.property(\"FirstName\");\r\n    pm.expect(response.errors).to.have.property(\"LastName\");\r\n    pm.expect(response.errors).to.have.property(\"Email\");\r\n    pm.expect(response.errors).to.have.property(\"Password\");\r\n    pm.expect(response.errors).to.have.property(\"ConfirmPassword\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register Customer - Duplicate Email Different Case Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Duplicate email is rejected regardless of letter case\", function () {\r\n    pm.expect(response.message).to.include(\"already exists\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"FirstName\": \"Mustafa\",\n  \"LastName\": \"Barakeh\",\n  \"Email\": \"MUSTAFA.API.REGISTER11@EXAMPLE.COM\",\n  \"Password\": \"{{qa_password_1}}\",\n  \"ConfirmPassword\": \"{{qa_password_1}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Current User - Authenticated Customer",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response contains the documented current-user fields\", function () {\r\n    pm.expect(response).to.have.property(\"id\");\r\n    pm.expect(response).to.have.property(\"email\");\r\n    pm.expect(response).to.have.property(\"name\");\r\n    pm.expect(response).to.have.property(\"roles\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{registered_customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/auth/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Current User - Unauthenticated Access Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/auth/me",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Default List",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Response contains the documented paged-result fields\", function () {\r\n    pm.expect(response).to.have.property(\"items\");\r\n    pm.expect(response).to.have.property(\"totalCount\");\r\n    pm.expect(response).to.have.property(\"page\");\r\n    pm.expect(response).to.have.property(\"pageSize\");\r\n    pm.expect(response).to.have.property(\"totalPages\");\r\n    pm.expect(response).to.have.property(\"hasNextPage\");\r\n    pm.expect(response).to.have.property(\"hasPreviousPage\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Search By Name",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Search returns the matching product\", function () {\r\n    pm.expect(response.items.length).to.be.above(0);\r\n    pm.expect(response.items.some(function (product) {\r\n        return product.name.toLowerCase().includes(\"wireless\") ||\r\n               product.description.toLowerCase().includes(\"wireless\");\r\n    })).to.equal(true);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?SearchTerm=wireless",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "SearchTerm",
+              "value": "wireless"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Price Range Filter",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"All returned products are within the inclusive price range\", function () {\r\n    pm.expect(response.items.every(product =>\r\n        product.price >= 249.99 && product.price <= 249.99\r\n    )).to.be.true;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?MinPrice=249.99&MaxPrice=249.99",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "MinPrice",
+              "value": "249.99"
+            },
+            {
+              "key": "MaxPrice",
+              "value": "249.99"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Sort By Price Ascending",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Products are sorted by price in ascending order\", function () {\r\n    for (let i = 1; i < response.items.length; i++) {\r\n        pm.expect(response.items[i].price).to.be.at.least(response.items[i - 1].price);\r\n    }\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?SortBy=price&SortDescending=false",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "SortBy",
+              "value": "price"
+            },
+            {
+              "key": "SortDescending",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Sort By Price Descending",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Products are sorted by price in descending order\", function () {\r\n    for (let i = 1; i < response.items.length; i++) {\r\n        pm.expect(response.items[i].price).to.be.at.most(response.items[i - 1].price);\r\n    }\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?SortBy=price&SortDescending=true",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "SortBy",
+              "value": "price"
+            },
+            {
+              "key": "SortDescending",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Sort By Name Ascending",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Products are sorted by name in ascending order\", function () {\r\n    for (let i = 1; i < response.items.length; i++) {\r\n        pm.expect(\r\n            response.items[i].name.localeCompare(response.items[i - 1].name)\r\n        ).to.be.at.least(0);\r\n    }\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?SortBy=name&SortDescending=false",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "SortBy",
+              "value": "name"
+            },
+            {
+              "key": "SortDescending",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Sort By Created Ascending",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Products are sorted by creation date in ascending order\", function () {\r\n    for (let i = 1; i < response.items.length; i++) {\r\n        pm.expect(\r\n            new Date(response.items[i].createdAt).getTime()\r\n        ).to.be.at.least(\r\n            new Date(response.items[i - 1].createdAt).getTime()\r\n        );\r\n    }\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?SortBy=created&SortDescending=false",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "SortBy",
+              "value": "created"
+            },
+            {
+              "key": "SortDescending",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Products - Pagination",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Pagination returns the requested page and page size\", function () {\r\n    pm.expect(response.page).to.eql(2);\r\n    pm.expect(response.pageSize).to.eql(5);\r\n    pm.expect(response.items.length).to.be.at.most(5);\r\n});\r\n\r\npm.test(\"Pagination metadata is returned\", function () {\r\n    pm.expect(response).to.have.property(\"totalCount\");\r\n    pm.expect(response).to.have.property(\"totalPages\");\r\n    pm.expect(response).to.have.property(\"hasNextPage\");\r\n    pm.expect(response).to.have.property(\"hasPreviousPage\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product?Page=2&PageSize=5",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ],
+          "query": [
+            {
+              "key": "Page",
+              "value": "2"
+            },
+            {
+              "key": "PageSize",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product By ID - Existing Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"The requested product is returned\", function () {\r\n    pm.expect(response.id).to.eql(2);\r\n    pm.expect(response.name).to.eql(\"Wireless Bluetooth Headphones\");\r\n});\r\n\r\npm.test(\"Response contains ProductDto fields\", function () {\r\n    pm.expect(response).to.have.property(\"price\");\r\n    pm.expect(response).to.have.property(\"discountedPrice\");\r\n    pm.expect(response).to.have.property(\"stock\");\r\n    pm.expect(response).to.have.property(\"categoryId\");\r\n    pm.expect(response).to.have.property(\"categoryName\");\r\n    pm.expect(response).to.have.property(\"discountPercentage\");\r\n    pm.expect(response).to.have.property(\"isActive\");\r\n    pm.expect(response).to.have.property(\"createdAt\");\r\n    pm.expect(response).to.have.property(\"averageRating\");\r\n    pm.expect(response).to.have.property(\"reviewCount\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product/2",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product By ID - Product Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Product not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product/999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Admin Creates Valid Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Product is created with the submitted values\", function () {\r\n    pm.expect(response.name).to.eql(\"API Product Test\");\r\n    pm.expect(response.price).to.eql(50);\r\n    pm.expect(response.stock).to.eql(10);\r\n    pm.expect(response.categoryId).to.eql(1);\r\n    pm.expect(response.discountPercentage).to.eql(0);\r\n});\r\n\r\npm.collectionVariables.set(\"api_created_product_id\", response.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"API Product Test\",\n  \"Description\": \"Product created during API testing.\",\n  \"Price\": 50,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Customer Is Forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer is denied product creation with 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Customer Cannot Create Product\",\n  \"Description\": \"Unauthorized product creation attempt.\",\n  \"Price\": 50,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Unauthenticated Request Is",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Unauthenticated request is rejected with 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Name Is Required",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Empty product name is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies Name\", function () {\r\n    pm.expect(response.errors).to.have.property(\"Name\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"\",\n  \"Description\": \"Product with an empty name.\",\n  \"Price\": 50,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Description Is Required",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Empty product description is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies Description\", function () {\r\n    pm.expect(response.errors).to.have.property(\"Description\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Product Without Description\",\n  \"Description\": \"\",\n  \"Price\": 50,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Zero Price Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Zero price is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies Price\", function () {\r\n    pm.expect(response.errors).to.have.property(\"Price\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Zero Price Product\",\n  \"Description\": \"Product with zero price.\",\n  \"Price\": 0,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Negative Price Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Negative price is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies Price\", function () {\r\n    pm.expect(response.errors).to.have.property(\"Price\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Negative Price Product\",\n  \"Description\": \"Product with negative price.\",\n  \"Price\": -1,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Negative Stock Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Negative stock is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies Stock\", function () {\r\n    pm.expect(response.errors).to.have.property(\"Stock\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Negative Stock Product\",\n  \"Description\": \"Product with negative stock.\",\n  \"Price\": 50,\n  \"Stock\": -1,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Nonexistent Category Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Nonexistent category is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Category not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Category not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Invalid Category Product\",\n  \"Description\": \"Product with an invalid category ID.\",\n  \"Price\": 50,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 999,\n  \"DiscountPercentage\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Negative Discount Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Negative discount is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies DiscountPercentage\", function () {\r\n    pm.expect(response.errors).to.have.property(\"DiscountPercentage\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Negative Discount Product\",\n  \"Description\": \"Product with negative discount.\",\n  \"Price\": 50,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": -1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Discount Above 100 Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Discount above 100 is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies DiscountPercentage\", function () {\r\n    pm.expect(response.errors).to.have.property(\"DiscountPercentage\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Invalid Discount Product\",\n  \"Description\": \"Product with discount above 100.\",\n  \"Price\": 50,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 101\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Admin Updates Valid Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Product is updated with the submitted values\", function () {\r\n    pm.expect(response.name).to.eql(\"API Product Test Updated\");\r\n    pm.expect(response.price).to.eql(55);\r\n    pm.expect(response.stock).to.eql(10);\r\n    pm.expect(response.discountPercentage).to.eql(10);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"API Product Test Updated\",\n  \"Description\": \"Product updated during API testing.\",\n  \"Price\": 55,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 1,\n  \"DiscountPercentage\": 10,\n  \"IsActive\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product/{{api_created_product_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "{{api_created_product_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Nonexistent Category Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Nonexistent category is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Category not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Category not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"API Product Test Updated\",\n  \"Description\": \"Product updated during API testing.\",\n  \"Price\": 55,\n  \"Stock\": 10,\n  \"ImageUrl\": \"\",\n  \"CategoryId\": 999,\n  \"DiscountPercentage\": 10,\n  \"IsActive\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/product/{{api_created_product_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "{{api_created_product_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Customer Is Forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer is denied product deletion with 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product/{{api_created_product_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "{{api_created_product_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Product Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Product not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product/{{api_created_product_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "{{api_created_product_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Product - Admin Soft Deletes Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Deletion success message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Product deleted successfully.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/product/{{api_created_product_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "product",
+            "{{api_created_product_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category By ID - Category Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Category not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/category/999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category",
+            "999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category - Admin Creates Valid Category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Category is created with the submitted name\", function () {\r\n    pm.expect(response.name).to.eql(\"API Test Category\");\r\n});\r\n\r\npm.collectionVariables.set(\"api_created_category_id\", response.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"API Test Category\",\n  \"Description\": \"Category created during API testing.\",\n  \"ImageUrl\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/category",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category - Name Is Required",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Empty category name is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies Name\", function () {\r\n    pm.expect(response.errors).to.have.property(\"Name\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"\",\n  \"Description\": \"Category with empty name.\",\n  \"ImageUrl\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/category",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category - Duplicate Name Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Duplicate category name is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Duplicate-name message is returned\", function () {\r\n    pm.expect(response.message).to.include(\"already exists\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"api test category\",\n  \"Description\": \"Duplicate category name attempt.\",\n  \"ImageUrl\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/category",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category - Customer Is Forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer is denied category creation with 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Customer Cannot Create Category\",\n  \"Description\": \"Unauthorized category creation attempt.\",\n  \"ImageUrl\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/category",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category - Category Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Category not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"Missing Category\",\n  \"Description\": \"Update attempt for a missing category.\",\n  \"ImageUrl\": \"\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/category/999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category",
+            "999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category - Customer Is Forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer is denied category deletion with 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/category/{{api_created_category_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category",
+            "{{api_created_category_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category - Category Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Category not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/category/999",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category",
+            "999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Category - Admin Soft Deletes Category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Deletion success message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Category deleted successfully.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/category/{{api_created_category_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "category",
+            "{{api_created_category_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Add Valid Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Product is added to the cart with quantity 1\", function () {\r\n    const item = response.items.find(item => item.productId === 5);\r\n    pm.expect(item).to.exist;\r\n    pm.expect(item.quantity).to.eql(1);\r\n\r\n    pm.collectionVariables.set(\"api_cart_item_id\", item.id);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ProductId\": 5,\n  \"Quantity\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/cart/items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart",
+            "items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Update Valid Item Quantity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Cart item quantity is updated to 2\", function () {\r\n    const item = response.items.find(item => item.id === Number(pm.collectionVariables.get(\"api_cart_item_id\")));\r\n    pm.expect(item).to.exist;\r\n    pm.expect(item.quantity).to.eql(2);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Quantity\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/cart/items/{{api_cart_item_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart",
+            "items",
+            "{{api_cart_item_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Product Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Nonexistent product is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Product not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Product not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ProductId\": 999,\n  \"Quantity\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/cart/items",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart",
+            "items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Cart - Remove Valid Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Removed product no longer exists in the cart\", function () {\r\n    const item = response.items.find(item => item.productId === 5);\r\n    pm.expect(item).to.be.undefined;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/cart/items/{{api_cart_item_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "cart",
+            "items",
+            "{{api_cart_item_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order - Empty Cart Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Empty cart is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Empty-cart message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Cart is empty.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ShippingAddress\": \"Irbid, Al-Hosn, Test Street 1\",\n  \"PaymentMethod\": \"CashOnDelivery\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/order",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order - Shipping Address Is Required",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Empty shipping address is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Validation error identifies ShippingAddress\", function () {\r\n    pm.expect(response.errors).to.have.property(\"ShippingAddress\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ShippingAddress\": \"\",\n  \"PaymentMethod\": \"CashOnDelivery\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/order",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order - Customer Creates Valid Order",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Order is created with submitted shipping and payment details\", function () {\r\n    pm.expect(response).to.have.property(\"id\");\r\n    pm.expect(response.shippingAddress).to.eql(\"Irbid, Al-Hosn, Test Street 1\");\r\n    pm.expect(response.paymentMethod).to.eql(\"CashOnDelivery\");\r\n});\r\n\r\npm.collectionVariables.set(\"api_created_order_id\", response.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ShippingAddress\": \"Irbid, Al-Hosn, Test Street 1\",\n  \"PaymentMethod\": \"CashOnDelivery\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/order",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Orders - Customer Lists Own Orders",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\nconst orderId = Number(pm.collectionVariables.get(\"api_created_order_id\"));\r\nconst order = response.find(order => order.id === orderId);\r\n\r\npm.test(\"Customer order is returned\", function () {\r\n    pm.expect(order).to.exist;\r\n});\r\n\r\npm.test(\"Customer order contains user email and name\", function () {\r\n    pm.expect(order.userEmail).to.eql(\"mustafa@gmail.com\");\r\n    pm.expect(order.userName).to.eql(\"Mustafa Barakeh\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/order",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order By ID - Customer Own Order",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"The requested order is returned\", function () {\r\n    pm.expect(response.id).to.eql(\r\n        Number(pm.collectionVariables.get(\"api_created_order_id\"))\r\n    );\r\n});\r\n\r\npm.test(\"Customer order contains user email and name\", function () {\r\n    pm.expect(response.userEmail).to.eql(\"mustafa@gmail.com\");\r\n    pm.expect(response.userName).to.eql(\"Mustafa Barakeh\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/order/{{api_created_order_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order",
+            "{{api_created_order_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order Status - Customer Is Forbidden",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Customer is denied order status update with 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Status\": \"Processing\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/order/{{api_created_order_id}}/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order",
+            "{{api_created_order_id}}",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order Status - Admin Updates To Processing",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Order status is updated to Processing\", function () {\r\n    pm.expect(response.status).to.eql(\"Processing\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Status\": \"Processing\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/order/{{api_created_order_id}}/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order",
+            "{{api_created_order_id}}",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order Status - Invalid Status Is Rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Invalid order status is rejected with 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Invalid-status message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\r\n        \"Invalid status. Valid values: Pending, Processing, Shipped, Delivered, Cancelled\"\r\n    );\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Status\": \"InvalidStatus\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/order/{{api_created_order_id}}/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order",
+            "{{api_created_order_id}}",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Order Status - Order Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Not-found message is returned\", function () {\r\n    pm.expect(response.message).to.eql(\"Order not found.\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Status\": \"Processing\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/order/999/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "order",
+            "999",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wishlist - Customer Adds Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Product is included in the wishlist\", function () {\r\n    pm.expect(response.items.some(item => item.productId === 3)).to.be.true;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/wishlist/3",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "wishlist",
+            "3"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Review - Customer Adds Valid Review",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Review is created for the requested product\", function () {\r\n    pm.expect(response.productId).to.eql(5);\r\n    pm.expect(response.rating).to.eql(5);\r\n    pm.expect(response.comment).to.eql(\"API valid review for a delivered order.\");\r\n});\r\n\r\npm.collectionVariables.set(\"api_created_review_id\", response.id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ProductId\": 5,\n  \"Rating\": 5,\n  \"Comment\": \"API valid review for a delivered order.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/review",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "review"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Review - Product Reviews Are Public",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"The created review appears in the product reviews\", function () {\r\n    const reviewId = Number(pm.collectionVariables.get(\"api_created_review_id\"));\r\n    pm.expect(response.some(review => review.id === reviewId)).to.be.true;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/review/product/5",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "review",
+            "product",
+            "5"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wishlist - Customer Gets Own Wishlist",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Wishlist response contains documented fields\", function () {\r\n    pm.expect(response).to.have.property(\"id\");\r\n    pm.expect(response).to.have.property(\"items\");\r\n    pm.expect(response).to.have.property(\"totalItems\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/wishlist",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "wishlist"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Wishlist - Customer Removes Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Product is removed from the wishlist\", function () {\r\n    pm.expect(response.items.some(item => item.productId === 3)).to.be.false;\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{customer_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/wishlist/3",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "wishlist",
+            "3"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Admin - Dashboard Returns Store Overview",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst response = pm.response.json();\r\n\r\npm.test(\"Dashboard contains documented overview fields\", function () {\r\n    pm.expect(response).to.have.property(\"totalUsers\");\r\n    pm.expect(response).to.have.property(\"totalOrders\");\r\n    pm.expect(response).to.have.property(\"totalProducts\");\r\n    pm.expect(response).to.have.property(\"totalCategories\");\r\n    pm.expect(response).to.have.property(\"totalRevenue\");\r\n    pm.expect(response).to.have.property(\"monthlyRevenue\");\r\n    pm.expect(response).to.have.property(\"pendingOrders\");\r\n    pm.expect(response).to.have.property(\"lowStockProducts\");\r\n    pm.expect(response).to.have.property(\"recentOrders\");\r\n    pm.expect(response).to.have.property(\"topProducts\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{admin_access_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/admin/dashboard",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "dashboard"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": ""
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "customer_access_token",
+      "value": ""
+    },
+    {
+      "key": "customer_refresh_token",
+      "value": ""
+    },
+    {
+      "key": "admin_access_token",
+      "value": ""
+    },
+    {
+      "key": "electronics_category_count",
+      "value": ""
+    },
+    {
+      "key": "unapproved_review_id",
+      "value": ""
+    },
+    {
+      "key": "refreshed_customer_access_token",
+      "value": ""
+    },
+    {
+      "key": "refreshed_customer_refresh_token",
+      "value": ""
+    },
+    {
+      "key": "cart_item_id_for_stock_test",
+      "value": ""
+    },
+    {
+      "key": "registered_customer_access_token",
+      "value": ""
+    },
+    {
+      "key": "api_created_product_id",
+      "value": ""
+    },
+    {
+      "key": "api_created_category_id",
+      "value": ""
+    },
+    {
+      "key": "api_cart_item_id",
+      "value": ""
+    },
+    {
+      "key": "api_created_order_id",
+      "value": ""
+    },
+    {
+      "key": "api_created_review_id",
+      "value": ""
+    },
+    {
+      "key": "qa_password_1",
+      "value": ""
+    },
+    {
+      "key": "qa_password_2",
+      "value": ""
+    },
+    {
+      "key": "qa_password_3",
+      "value": ""
+    },
+    {
+      "key": "qa_password_4",
+      "value": ""
+    },
+    {
+      "key": "qa_password_5",
+      "value": ""
+    },
+    {
+      "key": "qa_password_6",
+      "value": ""
+    },
+    {
+      "key": "qa_password_7",
+      "value": ""
+    },
+    {
+      "key": "qa_password_8",
+      "value": ""
+    },
+    {
+      "key": "qa_password_9",
+      "value": ""
+    },
+    {
+      "key": "customer_email",
+      "value": ""
+    }
+  ]
+}
